@@ -1,1 +1,18 @@
-Currently contains a multitude of scripts from my first ever attempt at analysis of genetic sequences. Will start documenting and adding the code I have over time.
+Currently contains a multitude of scripts from my first ever attempt at analysis
+of genetic sequences. Will start documenting and adding the code I have over
+time.
+
+Each directory pertains to one step of the computational portion of the
+BFG process.
+
+
+
+demultiplex_analysis: samples from many different timpoints are pooled before
+sequencing to save both time and money. These scripts undo that process from
+sequencing reads i.e mapping each read to which sample it came from.
+
+barcode_analysis: now that you have a bunch of reads from different samples,
+these scripts turn those strings of letters into actual gene deletions!
+
+complexity_analysis: these scripts let you measure the effectivness of the
+sequencing as well as the complexity of your yeast samples.

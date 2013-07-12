@@ -1,5 +1,8 @@
 #! /bin/bash
-#demultiplixes samples that were pooled for sequencing based on harcoded sequences to map reads to a specific sample. Merges processed fastq files and then identifies which sample each read belongs to. After, lists the number of reads in each sample. Quite fast.
+#demultiplixes samples that were pooled for sequencing based on harcoded
+#sequences to map reads to a specific sample. Merges processed fastq files and 
+#then identifies which sample each read belongs to. After, lists the number of
+# reads in each sample. Quite fast if I do say so myself.
 
 #names of fastq files
 fastq1=("lane1_Undetermined_L001_R1_001.fastq" "lane1_Undetermined_L001_R1_002.fastq" "lane1_Undetermined_L001_R1_003.fastq" "lane1_Undetermined_L001_R1_004.fastq")
