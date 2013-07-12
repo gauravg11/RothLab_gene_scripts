@@ -1,0 +1,22 @@
+#!/bin/bash
+
+filepath="~/first_gene_analysis/barcode_analysis/results_up"
+
+>uniqbarcodes_over_time_up
+>uniqbarcodes_over_time_down
+
+function counts () {
+while read -r line
+do
+	echo -n "$line	" >> "uniqbarcodes_over_time_$1"
+	(grep "Y" ~/first_gene_analysis/barcode_analysis/results_$1/$line | wc -l) >> "uniqbarcodes_over_time_$1"
+
+done <<< "$(ls ~/first_gene_analysis/barcode_analysis/results_$1 | grep "t" | sort -n -k1.2)"
+
+sed -i 1d uniqbarcodes_over_time_$1
+}
+
+counts "up"
+counts "down"
+
+
