@@ -1,22 +1,31 @@
 #!/bin/bash
+#counts the total number of unique mapped barcodes for each sample and outputs
+#results to a file.
 
-filepath="~/first_gene_analysis/barcode_analysis/results_up"
 
+
+#using a filepath variable was causing bugs, needs to be looked into. Should be possible to just bypass and use a cmd paramter I think.
+
+#creates/clears output files
 >uniqbarcodes_over_time_up
 >uniqbarcodes_over_time_down
 
+
 function counts () {
+#iterate through all the files with a timepoint i,e t0-t20
 while read -r line
 do
+	#add the filename and then the total number of unique mapped barcodes
 	echo -n "$line	" >> "uniqbarcodes_over_time_$1"
 	(grep "Y" ~/first_gene_analysis/barcode_analysis/results_$1/$line | wc -l) >> "uniqbarcodes_over_time_$1"
 
 done <<< "$(ls ~/first_gene_analysis/barcode_analysis/results_$1 | grep "t" | sort -n -k1.2)"
 
+#remove entry accidentally created
 sed -i 1d uniqbarcodes_over_time_$1
 }
 
 counts "up"
 counts "down"
 
-
+exit
