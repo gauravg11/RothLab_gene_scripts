@@ -1,10 +1,14 @@
 #!/bin/bash
-#
+#changes the filenames of result files to make them easier to perform
+#complexity analysis on. Files change from A1->t0.
 
 counter=0
+#todo: again, this shouldn't be hardcoded...ideally.
 direction="down"
 
 cd results_$direction
+#creates a temporary directory so as not to iterate through a list of files
+#is being modified.
 mkdir temp
 
 function renamer() {
@@ -24,6 +28,7 @@ renamer "4"
 mv temp/* .
 rmdir temp
 
+#accounts for blanks
 mv t21 blank1
 mv t22 blank2
 mv t23 blank3
