@@ -1,0 +1,41 @@
+#!/bin/bash
+
+divisor=4
+percentage=$((100/$divisor))
+filepath="~/first_gene_analysis/barcode_analysis/results_"
+
+function percent_counts () {
+output_file="top""$percentage""percent_unique_barcodes_""$1"".txt"
+> "$output_file"
+while read -r file
+do
+	total=$(grep "Y" ~/first_gene_analysis/barcode_analysis/results_$1/$file | awk '{total = total + $1}END{print total}')
+	total=$(( $total / $divisor))
+	sum=0
+	no_barcodes=0
+		
+	while read -r line
+	do
+		if [ "$sum" -gt "$total" ] 	
+		then
+			break
+		fi
+		
+		no_barcodes=$(($no_barcodes + 1))
+		reads=$(echo "$line" | awk '{print $1}')	
+		sum=$(($sum + $reads))
+		#echo -n "$sum	"
+		#echo "$total"
+
+	done <<< "$(grep "Y" ~/first_gene_analysis/barcode_analysis/results_$1/$file)"
+
+	echo -n "$file	" >> $output_file
+	echo "$no_barcodes" >> $output_file
+	 	
+
+done <<< "$(ls ~/first_gene_analysis/barcode_analysis/results_$1 | grep "t[0-9]" | sort -n -k1.2)"
+
+}
+
+percent_counts up
+percent_counts down
