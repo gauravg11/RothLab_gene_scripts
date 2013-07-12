@@ -1,33 +1,40 @@
 #! /bin/bash
-#demultiplixes samples that were pooled for sequencing based on harcoded sequences to map reads to a specific sample.
+#demultiplixes samples that were pooled for sequencing based on harcoded sequences to map reads to a specific sample. Merges processed fastq files and then identifies which sample each read belongs to. After, lists the number of reads in each sample. Quite fast.
 
-
+#names of fastq files
 fastq1=("lane1_Undetermined_L001_R1_001.fastq" "lane1_Undetermined_L001_R1_002.fastq" "lane1_Undetermined_L001_R1_003.fastq" "lane1_Undetermined_L001_R1_004.fastq")
 fastq2=("lane1_Undetermined_L001_R2_001.fastq" "lane1_Undetermined_L001_R2_002.fastq" "lane1_Undetermined_L001_R2_003.fastq" "lane1_Undetermined_L001_R2_004.fastq")
+#location of raw fastq files
 filepath="/home/jmellor/miseq/130626_M00730_0099_000000000-A2W66/Unaligned3/Undetermined_indices/Sample_lane1/"
 no_files=${#fastq1[@]}   
+#direcotry that results will be stored in
 output_dir="results"
 strict_reads=0
 lenient_reads=0
 
-
+#clear out output directory for a fresh set of processed results and create directories to seperate uptags and downtags.
 rm -rf $output_dir/*
 mkdir $output_dir/up
 mkdir $output_dir/down
 > raw_reads
 
+#Process the seperate fastq files and bring them together to speed up further processing.
 for ((i=0; i<$no_files; i++))
 do
 	pr -mtJ "$filepath${fastq1[i]}" "$filepath${fastq2[i]}" | awk '0==(NR+2)%4' >> raw_reads
 	echo "$i"
 done
 
+#begin by seperating samples by row
 row1=$(agrep "	TCGCCTTA" raw_reads)
 row2=$(agrep "	CTAGTACG" raw_reads)
 row3=$(agrep "	TTCTGCCT" raw_reads)
 row4=$(agrep "	GCTCAGGA" raw_reads)
+#keep the rows in an array to aid further iteration
 rows=("$row1" "$row2" "$row3" "$row4")
 
+
+#iterate through all the rows and identify column number
 for ((i=0; i<${#rows[@]}; i++))
 do
 	row_number=$((i+1))
@@ -41,7 +48,7 @@ echo "$i"
 done
 
 
-
+#lastly, seperate samples by uptags and downtags.
 for f in $output_dir/* 
 do
 	file_name=$(basename "ls $f")
@@ -50,11 +57,14 @@ do
 	echo "$file_name"	
 done
 
+#delete extra files created by iterations
 rm $output_dir/down/down
 rm $output_dir/down/up
 rm $output_dir/up/up
 rm $output_dir/up/down
 
+
+#also record how reads exist for each sample in the output directory
 >counts
 for f in $output_dir/down/*
 do
