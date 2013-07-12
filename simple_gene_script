@@ -1,0 +1,46 @@
+#! /bin/bash
+# returns number of strict and lenient reads for given 'start' and 'end' sequences.
+
+#files to iterate through
+fastq1=("lane1_Undetermined_L001_R1_001.fastq" "lane1_Undetermined_L001_R1_002.fastq" "lane1_Undetermined_L001_R1_003.fastq" "lane1_Undetermined_L001_R1_004.fastq")
+fastq2=("lane1_Undetermined_L001_R2_001.fastq" "lane1_Undetermined_L001_R2_002.fastq" "lane1_Undetermined_L001_R2_003.fastq" "lane1_Undetermined_L001_R2_004.fastq")
+#location of raw data on server
+filepath="/home/jmellor/miseq/130626_M00730_0099_000000000-A2W66/Unaligned3/Undetermined_indices/Sample_lane1/"
+no_files=${#fastq1[@]}   
+total_strict_reads=0
+total_lenient_reads=0
+
+
+strict_reads() {
+	#regex for 'start' and end sequences
+	i="^"$3
+	j=" "$4
+	#process file and output number of strict reads
+	local no_strict_reads=$(pr -mt "$filepath$1" "$filepath$2" | awk '0==(NR+2)%4' | grep "$i" | grep -c "$j")
+	echo $no_strict_reads
+	total_strict_reads=$(($no_strict_reads + $total_strict_reads))
+}
+
+
+#same as strict_reads, but uses agrep instead of grep.
+lenient_reads() {
+	i="^"$3
+        j=" "$4
+        local no_lenient_reads=$(pr -mt "$filepath$1" "$filepath$2" | awk '0==(NR+2)%4' | agrep -1 "$i" | agrep -1 -c "$j")
+	echo $no_lenient_reads
+	total_lenient_reads=$(($no_lenient_reads + $total_lenient_reads))
+}
+
+
+#finds your start and end sequence in ever pair of files
+for ((l=0; l<$no_files; l++))
+do
+	strict_reads "${fastq1[l]}" "${fastq2[l]}" "$1" "$2"
+	lenient_reads "${fastq1[l]}" "${fastq2[l]}" "$1" "$2"
+done
+
+echo "lenient reads: $total_lenient_reads"
+echo "strict reads: $total_strict_reads"
+
+exit
+
