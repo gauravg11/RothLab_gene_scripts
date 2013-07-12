@@ -1,34 +1,44 @@
 #!/bin/bash
+#an improves version of 'barcode_counter' as this one can do counting only
+#in the top x% of reads. Setting x to 100 should make this behave the same as 
+#'barcode_counter' though speed tests are needed as this script is more complex.
 
+
+#this variable determines your value for x
 divisor=4
 percentage=$((100/$divisor))
-filepath="~/first_gene_analysis/barcode_analysis/results_"
+#filepath variable was causing bugs here as well
+
+
 
 function percent_counts () {
 output_file="top""$percentage""percent_unique_barcodes_""$1"".txt"
 > "$output_file"
+#iterate through your data files in order
 while read -r file
 do
+	#store the total number of mapped unique barcodes
 	total=$(grep "Y" ~/first_gene_analysis/barcode_analysis/results_$1/$file | awk '{total = total + $1}END{print total}')
+	#calculate the total number of reads allowed
 	total=$(( $total / $divisor))
 	sum=0
 	no_barcodes=0
-		
+	#iterate through every line of your data file		
 	while read -r line
 	do
+		#if you've exceeded your alloted amount of reads, exit
 		if [ "$sum" -gt "$total" ] 	
 		then
 			break
 		fi
-		
+		#otherwise, you've come across one more barcode
 		no_barcodes=$(($no_barcodes + 1))
+		#add to number of reads used up so far
 		reads=$(echo "$line" | awk '{print $1}')	
 		sum=$(($sum + $reads))
-		#echo -n "$sum	"
-		#echo "$total"
 
 	done <<< "$(grep "Y" ~/first_gene_analysis/barcode_analysis/results_$1/$file)"
-
+	#output results for that file
 	echo -n "$file	" >> $output_file
 	echo "$no_barcodes" >> $output_file
 	 	
