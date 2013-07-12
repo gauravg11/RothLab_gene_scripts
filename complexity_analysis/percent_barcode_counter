@@ -49,3 +49,5 @@ done <<< "$(ls ~/first_gene_analysis/barcode_analysis/results_$1 | grep "t[0-9]"
 
 percent_counts up
 percent_counts down
+
+exit
