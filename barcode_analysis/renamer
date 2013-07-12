@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+
+counter=0
+direction="down"
+
+cd results_$direction
+mkdir temp
+
+function renamer() {
+while read -r line
+do
+	mv "$line" "temp/t$counter"
+	counter=$(($counter + 1)) 
+done <<< "$(ls | grep "$1")"
+}
+
+renamer "1"
+renamer "2"
+renamer "3"
+renamer "4"
+
+
+mv temp/* .
+rmdir temp
+
+mv t21 blank1
+mv t22 blank2
+mv t23 blank3
+

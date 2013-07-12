@@ -1,0 +1,58 @@
+#!/bin/bash
+#takes sequences from a large number of 'sample' files and maps their
+#barcodes to the genes they correspond to by using a reference file.
+#Also outputs % of succesful maps for each file.
+
+
+
+counter=0
+#todo: make this variable a parameter to the script
+direction="up"
+#counts total number of succesful maps so far
+succesful_maps=0
+
+#creates a 'summary' file
+cd results_$direction
+>percentage_maps
+cd ..
+
+
+#iterates through demultiplexed data files, will want to make this a 
+#parameter as well in the future
+for file in ~/first_gene_analysis/demultiplex_analysis/results/$direction/*
+do
+	cd results_$direction
+	name=$(basename $file)
+	#create/clear output file in appropriate directory
+	> $name
+	cd ..
+	#this variable accounts for the staggering of 'start' primers
+	offset=$((27 + (counter/4)))
+	#cuts out just the barcodes, quantifies by uniqueness, and sorts
+	f=$(cut -c $offset-45 $file | sort | uniq -c | sort -nr)
+	no_barcodes=$(echo "$f" | wc -l)
+	#iterate through every unique barcode
+	printf %s "$f" | { while IFS= read line
+	do
+		barcode=$(echo $line | cut -d" " -f2)
+		#look for the barcode in the reference file
+		ref_file="$direction"tags.txt
+		line2=$(grep "$barcode" $ref_file | awk '{print $1}')
+		#if the line is nto empty, there was a succesful map
+		if [ -n "$line2" ]; then
+			succesful_maps=$(($succesful_maps + 1))
+		fi
+		echo -n "$line	" >> results_$direction/$name
+		echo $line2 >> results_$direction/$name
+	done
+	#record percentage of succesful maps for each sample
+	echo -n "$((($succesful_maps * 100) / $no_barcodes))% maps  " >> results_$direction/percentage_maps
+	echo "$name" >> results_$direction/percentage_maps
+	}
+
+
+counter=$(($counter + 1))
+
+done
+
+exit
